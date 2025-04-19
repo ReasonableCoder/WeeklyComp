@@ -23,8 +23,7 @@ public class Record implements Comparable<Record> {
         this.event = Event.MULTIBLIND;
         this.type = RecordType.MULTI;
         this.multiResult = multiResult;
-        String[] resultParts = multiResult.split(" ");
-        this.time = Main.getMilliseconds(resultParts[2]);
+        this.time = Main.getMilliseconds(multiResult);
         this.recordHolder = recordHolder;
     }
 
@@ -67,7 +66,6 @@ public class Record implements Comparable<Record> {
         // For all other events, lower time is better
         return Integer.compare(other.getTime(), this.time);
     }
-
 
     @Override
     public String toString() {
