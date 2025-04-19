@@ -22,8 +22,10 @@ public class Main {
     private static final int nonEvents = 2;
     private static final String recordsFile = "Reasonable Comp Records - Sheet1.csv";
     private static HashMap<String, String[]> entries;
+    private static String[] eventNames;
+    private static User[] users;
     public static void main(String[] args) {
-        getEntries();
+        loadEntries();
         if (entries.isEmpty()) {
             System.out.println("Couldn't find any entries bruh fix yo shit.");
             System.exit(0);
@@ -39,23 +41,27 @@ public class Main {
         printWinners(rankedEntries);
     }
 
-
-    public static void getEntries() {
-        entries = new HashMap<>();
+    /**
+     * Reads the response csv file, gets the array of eventNames and the array of Users.
+     */
+    public static void loadEntries() {
+        ArrayList<User> usernames = new ArrayList<>();
         try (CSVReader reader = new CSVReader(new FileReader(fileName))) {
             String[] elements;
             boolean firstLine = true;
-            while ((elements = reader.readNext()) != null) {
-                String[] values = Arrays.copyOfRange(elements, 2, elements.length - nonEvents);
 
+            while ((elements = reader.readNext()) != null) {
                 if (firstLine) {
-                    entries.put("Events", values);
+                    eventNames = Arrays.copyOfRange(elements, 2, elements.length - nonEvents);
                     firstLine = false;
                     continue;
                 }
-                String key = elements[1];
-                entries.put(key, values);
+
+                String username = elements[1];
+                String[] responses = Arrays.copyOfRange(elements, 2, elements.length - nonEvents);
+                usernames.add(new User(username, responses));
             }
+            users = usernames.toArray(new User[0]);
         } catch (IOException e) {
             System.out.println("Couldn't read file '" + fileName + "'. You probably forgot to put it in the project directory dumbass.");
         } catch (CsvValidationException e) {
