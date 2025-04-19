@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import java.util.LinkedHashMap;
@@ -69,53 +68,63 @@ public class Main {
         }
     }
 
-
+    /**
+     * Converts a String of time into an int of the number of milliseconds.
+     * @param response the String to be converted to ms
+     * @return an int of the ms of the response
+     */
     public static int getMilliseconds(String response) {
-        response = response.strip().replace("\"", "").replace(",", ".");
-        // Used to check if response contains any numbers
-        String regex = ".*\\d.*";
-        Pattern pattern = Pattern.compile(regex);
+        response = response.replace("\"", "").replace(",", ".").strip();
+        String time = "0"; // Placeholder value to indicate no response
+
         // In case someone wrote the time with a message next to it
         String[] words = response.split(" ");
-        String time = "0"; // placeholder value to indicate no response
         for (String word : words) {
-            if (pattern.matcher(word).matches()) {
+            if (word.matches("^[0-9:.]+$")) {
                 time = word;
                 break;
             }
         }
+
         int hours = 0;
         int minutes = 0;
         String decimalSeconds;
-        if (time.equals("0")) { // Only happens if response contained no numbers
+
+        if (time.equals("0")) { // Only happens if response was of an invalid format
             return 0;
         }
+
         else if (time.contains(":")) {
             String[] timeParts = time.split(":");
             int mIndex = 0; // Default assumption the time is in minutes, so first part is minutes
             int sIndex = 1; // Default assumption the second part is seconds
+
             if (timeParts.length > 3) { // Time should never be more than in hours
                 return 0;
             }
+
             else if (timeParts.length == 3) {
                 // Time is in hours, so first part is hours, second is minutes, third is seconds
                 hours = Integer.parseInt(timeParts[0]);
                 mIndex = 1;
                 sIndex = 2;
             }
+
             minutes = Integer.parseInt(timeParts[mIndex]);
             decimalSeconds = timeParts[sIndex];
         }
+
         else {
             decimalSeconds = time;
         }
+
         // Convert seconds to milliseconds
-        BigDecimal totalSeconds = new BigDecimal(decimalSeconds);
-        BigDecimal floored = totalSeconds.setScale(2, RoundingMode.DOWN);
-        long milliSeconds = (long) (floored.floatValue() * 1000);
+        BigDecimal seconds = new BigDecimal(decimalSeconds).setScale(2, RoundingMode.DOWN);
+        BigDecimal milliseconds = seconds.multiply(new BigDecimal("1000"));
+
         // Turn whole time to milliseconds
-        long milliseconds = TimeUnit.HOURS.toMillis(hours) + TimeUnit.MINUTES.toMillis(minutes) + milliSeconds;
-        return (int) milliseconds;
+        long totalMilliseconds = TimeUnit.HOURS.toMillis(hours) + TimeUnit.MINUTES.toMillis(minutes) + milliseconds.longValue();
+        return (int) totalMilliseconds;
     }
 
 
@@ -144,8 +153,8 @@ public class Main {
                         }
                         else if (currentPoints == rankedPoints) {
                             // Compare time if points tie
-                            int currentMS = getMilliseconds(currentResponse.split(" ")[2]);
-                            int rankedMS = getMilliseconds(rankedResponse.split(" ")[2]);
+                            int currentMS = getMilliseconds(currentResponse);
+                            int rankedMS = getMilliseconds(rankedResponse);
                             if (currentMS <= rankedMS) {
                                 ranking.add(i, currentUser);
                                 inserted = true;
@@ -202,8 +211,8 @@ public class Main {
                     if (isMulti) {
                         int prevPoints = Main.getMultiPoints(previousResult);
                         int currPoints = Main.getMultiPoints(result);
-                        int prevTime = getMilliseconds(previousResult.split(" ")[2]);
-                        int currTime = getMilliseconds(result.split(" ")[2]);
+                        int prevTime = getMilliseconds(previousResult);
+                        int currTime = getMilliseconds(result);
                         isTie = (prevPoints == currPoints) && (prevTime == currTime);
                     } else {
                         int prevTime = getMilliseconds(previousResult);
@@ -239,12 +248,12 @@ public class Main {
             int eventIndex = Arrays.asList(eventNames).indexOf(key);
 
             String firstResponse = entries.get(rankedUsers[0])[eventIndex];
-            int firstTime = isMulti ? getMilliseconds(firstResponse.split(" ")[2]) : getMilliseconds(firstResponse);
+            int firstTime = getMilliseconds(firstResponse);
             int firstPoints = isMulti ? getMultiPoints(firstResponse) : 0;
 
             for (String user : rankedUsers) {
                 String userResponse = entries.get(user)[eventIndex];
-                int userTime = isMulti ? getMilliseconds(userResponse.split(" ")[2]) : getMilliseconds(userResponse);
+                int userTime = getMilliseconds(userResponse);
                 int userPoints = isMulti ? getMultiPoints(userResponse) : 0;
 
                 if (userTime == firstTime && userPoints == firstPoints) {
