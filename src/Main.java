@@ -71,7 +71,7 @@ public class Main {
     /**
      * Converts a String of time into an int of the number of milliseconds.
      * @param response the String to be converted to ms
-     * @return an int of the ms of the response
+     * @return the int ms of the response
      */
     public static int getMilliseconds(String response) {
         response = response.replace("\"", "").replace(",", ".").strip();
