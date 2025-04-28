@@ -80,7 +80,6 @@ public class Utils {
             return solved - unsolved;
         }
         catch (Exception e) {
-            System.err.println("Invalid multi result: " + multiResult);
             return -1;
         }
     }

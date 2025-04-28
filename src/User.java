@@ -12,7 +12,7 @@ public class User {
     }
 
     public String[] getEntries() {
-        return entries;
+        return entries.clone();
     }
 
     public String getEntryForEvent(int eventIndex) {
@@ -21,6 +21,8 @@ public class User {
 
     public boolean participatedInEvent(int eventIndex) {
         String entry = getEntryForEvent(eventIndex);
-        return entry != null && !entry.trim().isEmpty() && !entry.equals("0");
+        boolean isMulti = Utils.isMulti(Main.getEventNames()[eventIndex]);
+        if (isMulti) return Utils.getMultiPoints(entry) >= 0;
+        return entry != null && !entry.trim().isEmpty() && !(Utils.getMilliseconds(entry) == 0);
     }
 }

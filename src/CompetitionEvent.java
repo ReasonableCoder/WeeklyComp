@@ -61,7 +61,7 @@ public class CompetitionEvent {
         User first = rankedUsers[0];
         winners.add(first);
 
-        for  (int i = 1; i < rankedUsers.length; i++) {
+        for (int i = 1; i < rankedUsers.length; i++) {
             User current = rankedUsers[i];
             if (compareUsers(first, current) == 0) {
                 winners.add(current);

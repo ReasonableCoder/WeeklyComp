@@ -23,7 +23,7 @@ public class Record implements Comparable<Record> {
         this.event = Event.MULTIBLIND;
         this.type = RecordType.MULTI;
         this.multiResult = multiResult;
-        this.time = Main.getMilliseconds(multiResult);
+        this.time = Utils.getMilliseconds(multiResult);
         this.recordHolder = recordHolder;
     }
 
@@ -55,7 +55,7 @@ public class Record implements Comparable<Record> {
 
         if (this.event == Event.MULTIBLIND) {
             // Compare Multi-Blind results
-            int pointComparison = Integer.compare(Main.getMultiPoints(this.multiResult), Main.getMultiPoints(other.getMultiResult()));
+            int pointComparison = Integer.compare(Utils.getMultiPoints(this.multiResult), Utils.getMultiPoints(other.getMultiResult()));
             if (pointComparison == 0) {
                 // If points are the same, the faster time wins
                 return Integer.compare(other.getTime(), this.time);
@@ -72,6 +72,6 @@ public class Record implements Comparable<Record> {
         if (type == RecordType.MULTI) {
             return event.toString() + " result of " + multiResult + " by " + recordHolder;
         }
-        return event.toString() + " " + type.toString() + " of " + Main.formatTime(time) + " by " + recordHolder;
+        return event.toString() + " " + type.toString() + " of " + Utils.formatTime(time) + " by " + recordHolder;
     }
 }
